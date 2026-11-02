@@ -162,8 +162,8 @@ export default function CalendarPage() {
               >
                 <Check className="size-3" />
               </button>
-              <button type="button" onClick={() => openEdit(task)} className="flex-1 text-left">
-                <p className={`text-sm font-medium ${task.done ? 'text-muted-foreground line-through' : ''}`}>
+              <button type="button" onClick={() => openEdit(task)} className="min-w-0 flex-1 text-left">
+                <p className={`break-words text-sm font-medium ${task.done ? 'text-muted-foreground line-through' : ''}`}>
                   {task.title}
                 </p>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -171,7 +171,9 @@ export default function CalendarPage() {
                   <Badge variant="outline">{TASK_TYPE_META[task.type].label}</Badge>
                   {task.time && <span className="text-xs text-muted-foreground">{task.time}</span>}
                 </div>
-                {task.note && <p className="mt-1 text-xs text-muted-foreground">{task.note}</p>}
+                {task.note && (
+                  <p className="mt-1 break-words text-xs text-muted-foreground">{task.note}</p>
+                )}
               </button>
             </div>
           ))}
