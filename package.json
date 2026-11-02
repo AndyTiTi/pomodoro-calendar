@@ -16,6 +16,7 @@
   "build": {
     "appId": "com.yunzhanlab.pomodoro-calendar",
     "productName": "桌面番茄日历",
+    "electronLanguages": ["zh-CN", "en-US"],
     "directories": {
       "output": "release"
     },
