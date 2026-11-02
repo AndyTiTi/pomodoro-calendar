@@ -165,8 +165,15 @@ Rust 依赖走 rsproxy 镜像（在 `~/.cargo/config.toml` 配置 `rsproxy-spars
 
 ## 发布流程（维护者）
 
-1. 改版本号：`package.json` 与 `src-tauri/tauri.conf.json` 两处 `version` 保持一致。
-2. `npm run tauri:build` 生成 NSIS 安装包。
-3. 建 git tag `v<version>`，在 GitHub Releases 上传 `桌面番茄日历_<version>_x64-setup.exe`。
+1. 改版本号，**三处保持一致**：`package.json`、`src-tauri/tauri.conf.json`、`src-tauri/Cargo.toml`。
+2. `npm run tauri:build` 生成 NSIS 安装包，并由 `scripts/copy-release.mjs` 自动把当前版本的安装包拷到根目录 `release/`（只拷匹配 `tauri.conf.json` 版本号的，拷贝前清空 `release/`）。
+3. 提交并打 tag：`git tag -a v<version> && git push origin main && git push origin v<version>`。
+4. 在 GitHub 网页发 Release（无需 token）：
+   - 打开 `https://github.com/<owner>/<repo>/releases/new`
+   - **Choose a tag** 选刚推的 `v<version>`
+   - 填 Release title，**Attach binaries** 拖入 `release/桌面番茄日历_<version>_x64-setup.exe`
+   - 粘贴版本说明后 **Publish release**
 
-> 仓库公开，附件可匿名直接下载；安装包仅 1.35 MB，任何平台的 Release 限制都不再是问题。
+> 仓库公开，附件可匿名直接下载；安装包仅约 1.35 MB，任何平台的 Release 限制都不再是问题。
+> `release/` 已被 `.gitignore` 忽略，只作本地中转，不入库。
+
