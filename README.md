@@ -164,7 +164,13 @@ npx electron-builder --win --config.electronDist=.electron-dist
 
 当前 Electron 安装包 109 MB、便携版主程序约 238 MB，体积几乎全部来自 Chromium + Node 运行时。
 
-**Tauri 方案**：复用系统 WebView2（Win10/11 多已内置），后端用 Rust，安装包通常 **3–15 MB**，是数量级的缩减。本应用尤其适合迁移，因为：
+**Tauri 方案（已迁移并实测通过）**：复用系统 WebView2（Win10/11 多已内置），后端用 Rust。实测安装包 **1.35 MB**、主程序 exe 3.59 MB，相较 Electron 缩减约 **80×**：
+
+| 产物 | Electron | Tauri | 缩减 |
+|------|---------:|------:|-----:|
+| NSIS 安装包 | 109 MB | **1.35 MB** | ~80× |
+| 主程序 exe | 238 MB | 3.59 MB | ~66× |
+
 
 - 原生面很窄——主进程只有「窗口 + 托盘 + 单实例 + 通知」，全部有 Tauri 官方插件对应（`tauri-plugin-notification`、tray、`tauri-plugin-single-instance`）。
 - React 前端几乎零改动；`src/lib/notify.ts` 已做优雅降级，只需把 `window.electronAPI.notify` 桥换成 Tauri `invoke` / 通知插件。
@@ -194,17 +200,18 @@ tauri.vite.config.ts        # 渲染层构建（base:'./' → dist-tauri，tauri
 - `npx tsc` 类型检查通过；`vite build --config tauri.vite.config.ts` 渲染层构建通过（约 388 KB JS / 123 KB gzip）。
 - React 业务代码零改动，Electron 版仍可正常构建，两套壳并存。
 
-### 待安装 Rust 后的构建步骤
+### Tauri 构建步骤（已实测通过）
 
-前置（一次性）：**Rust（rustup，默认 `x86_64-pc-windows-msvc`）** + **Microsoft C++ Build Tools（勾选「使用 C++ 的桌面开发」）**。WebView2 运行时 Win10/11 通常已内置（本机已确认 v156）。
+前置（一次性）：**Rust（rustup，默认 `x86_64-pc-windows-msvc`）** + **Microsoft C++ Build Tools（勾选「使用 C++ 的桌面开发」）**。WebView2 运行时 Win10/11 通常已内置（本机 v156 已确认）。
 
 ```bash
 npm install
 npm run tauri:dev      # 开发：起 vite(27890) + 编译 Rust + 打开原生窗口
-npm run tauri:build    # 打包：产物在 src-tauri/target/release/bundle/nsis/*.exe
+npm run tauri:build    # 打包：产物 src-tauri/target/release/bundle/nsis/*_x64-setup.exe
 ```
 
-> 手写脚手架未经 `cargo` 编译验证，首次 `tauri:build` 若因 Tauri 次版本 API 差异报错，按提示微调 `src-tauri/src/lib.rs` 即可（托盘 / 菜单 API 是最可能变动处）。
+实测：release 全量编译约 10 分钟，产出 `桌面番茄日历_0.1.0_x64-setup.exe`（1.35 MB），启动运行正常，`cargo check` 与 `tauri:build` 均零错误。`src-tauri/Cargo.lock` 已纳入版本控制以保证可复现构建。
+
 
 
 ---
