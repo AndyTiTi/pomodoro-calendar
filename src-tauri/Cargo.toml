@@ -1,0 +1,26 @@
+[package]
+name = "pomodoro-calendar"
+version = "0.1.0"
+description = "桌面番茄日历 —— 番茄钟 + 内容发布节奏排期"
+authors = ["yunzhanlab"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "pomodoro_calendar_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-notification = "2"
+tauri-plugin-single-instance = "2"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

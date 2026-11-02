@@ -174,6 +174,39 @@ npx electron-builder --win --config.electronDist=.electron-dist
 
 **结论**：若以「小体积、可直接下载分发」为主要目标，值得迁移到 Tauri；现有 Electron 版可继续作为过渡产物。迁移可在 `src-tauri/` 下并行进行，不影响当前 React 代码。
 
+### Tauri 脚手架现状（`feat/tauri` 分支）
+
+已完成、且**不依赖 Rust 即验证通过**的部分：
+
+```
+src-tauri/
+├── Cargo.toml              # tauri 2 / plugin-notification / plugin-single-instance
+├── build.rs
+├── tauri.conf.json         # 窗口、NSIS(currentUser)、frontendDist=../dist-tauri
+├── capabilities/default.json   # core:default + notification:default
+├── icons/                  # npx tauri icon 从 build/icon.png 生成（ico/png/icns 全套）
+└── src/{main.rs,lib.rs}    # 单实例 + 通知 + 托盘菜单 + 关闭最小化到托盘
+tauri.vite.config.ts        # 渲染层构建（base:'./' → dist-tauri，tauri:// 协议加载）
+```
+
+前端桥接：`src/lib/notify.ts` 现按 Electron → Tauri → Web 三路降级；Tauri 分支通过 `window.__TAURI_INTERNALS__` 探测并**动态 import** `@tauri-apps/plugin-notification`，Web 构建不会加载它。
+
+- `npx tsc` 类型检查通过；`vite build --config tauri.vite.config.ts` 渲染层构建通过（约 388 KB JS / 123 KB gzip）。
+- React 业务代码零改动，Electron 版仍可正常构建，两套壳并存。
+
+### 待安装 Rust 后的构建步骤
+
+前置（一次性）：**Rust（rustup，默认 `x86_64-pc-windows-msvc`）** + **Microsoft C++ Build Tools（勾选「使用 C++ 的桌面开发」）**。WebView2 运行时 Win10/11 通常已内置（本机已确认 v156）。
+
+```bash
+npm install
+npm run tauri:dev      # 开发：起 vite(27890) + 编译 Rust + 打开原生窗口
+npm run tauri:build    # 打包：产物在 src-tauri/target/release/bundle/nsis/*.exe
+```
+
+> 手写脚手架未经 `cargo` 编译验证，首次 `tauri:build` 若因 Tauri 次版本 API 差异报错，按提示微调 `src-tauri/src/lib.rs` 即可（托盘 / 菜单 API 是最可能变动处）。
+
+
 ---
 
 ## 发布流程（维护者）

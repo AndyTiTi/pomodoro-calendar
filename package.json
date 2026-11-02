@@ -11,7 +11,11 @@
     "lint": "concurrently npm:typecheck npm:lint:eslint",
     "lint:eslint": "eslint src",
     "electron:dev": "electron .",
-    "electron:build": "vite build --config electron.vite.config.ts && electron-builder --win"
+    "electron:build": "vite build --config electron.vite.config.ts && electron-builder --win",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:icon": "tauri icon build/icon.png"
   },
   "build": {
     "appId": "com.yunzhanlab.pomodoro-calendar",
@@ -77,6 +81,8 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.1.18",
     "@tailwindcss/typography": "^0.5.16",
+    "@tauri-apps/api": "^2.12.4",
+    "@tauri-apps/plugin-notification": "^2.8.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -109,6 +115,7 @@
   "devDependencies": {
     "@eslint/js": "^9",
     "@tailwindcss/vite": "^4.2.2",
+    "@tauri-apps/cli": "^2.12.4",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",

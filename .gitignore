@@ -14,6 +14,12 @@ release/
 release-*/
 .electron-dist/
 
+# Tauri build artifacts (Rust target dir + generated schemas + renderer bundle).
+# src-tauri source, config, capabilities and icons ARE tracked.
+src-tauri/target/
+src-tauri/gen/schemas/
+dist-tauri/
+
 # Build assets: ignore everything except the app icon needed for packaging
 build/*
 !build/icon.png
