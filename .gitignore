@@ -6,14 +6,6 @@ node_modules/
 dist/
 */dist/
 
-# Electron intermediate renderer build (portable copy lives in desktop/)
-dist-electron/
-
-# Electron build outputs (large binaries, regenerated; shipped as Release attachments)
-release/
-release-*/
-.electron-dist/
-
 # Tauri build artifacts (Rust target dir + generated schemas + renderer bundle).
 # src-tauri source, config, capabilities and icons ARE tracked.
 src-tauri/target/
@@ -26,11 +18,6 @@ build/*
 
 # Generated icon source scratch
 vibe_images/
-
-# Desktop portable (green) version — kept on disk locally but NOT committed:
-# the 239MB exe exceeds Gitee's 50MB repo single-file limit. It is distributed
-# as a Release attachment instead (source in git, binaries in Releases).
-desktop/
 
 # Environment files
 .env.local

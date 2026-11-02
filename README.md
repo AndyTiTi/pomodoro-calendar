@@ -4,19 +4,18 @@
 日历提醒严格对齐 [`code-blog`](../code-blog) 的《内容发布节奏与官网植入规划》——D0 官网首发 → D1 掘金 → D2 CSDN → D3–D4 知乎 → D5 公众号 → 周末复盘。
 
 - 前端：React 19 + TypeScript + Vite 8 + Tailwind v4 + shadcn/ui
-- 桌面壳：Electron 45 + electron-builder 26（NSIS 安装版 + 绿色免安装版）
+- 桌面壳：Tauri 2（Rust）+ 系统 WebView2，NSIS 安装包实测 **1.35 MB**
 - 数据：localStorage 本地持久化，支持 JSON 导入 / 导出（可纳入 git 管理）
+
+> 历史：v0.1.0 之前用 Electron 封装（安装包 109 MB），现已整体迁移到 Tauri，体积缩减约 80×。Electron 相关代码保留在 git 历史中。
 
 ---
 
 ## 下载
 
-发布页：<https://github.com/AndyTiTi/pomodoro-calendar/releases/tag/v0.1.0>
+发布页：<https://github.com/AndyTiTi/pomodoro-calendar/releases>
 
-| 附件 | 说明 |
-|------|------|
-| `pomodoro-calendar-setup-<version>.exe` | NSIS 安装版，可选安装目录、创建桌面快捷方式 |
-| `pomodoro-calendar-portable-<version>.zip` | 绿色免安装版，解压后运行 `桌面番茄日历.exe` |
+Tauri NSIS 安装包：`桌面番茄日历_<version>_x64-setup.exe`（约 1.35 MB）。仓库公开，附件可匿名直接下载。
 
 ---
 
@@ -25,7 +24,7 @@
 - **番茄钟**：专注 / 短休 / 长休三模式，可配置时长与长休间隔，自动开始；每完成一个专注计入当日番茄数。
 - **发布节奏排期**：一键为选定周生成 7 天分发流水线（`src/lib/rhythm.ts`），平台、时间、注意事项均来自 code-blog 规划。
 - **日历浏览**：单击某天在右侧面板浏览当天日程，右侧「添加日程」按钮再打开新建 / 编辑弹窗。
-- **到点提醒**：带时间的未完成日程，在提前 N 分钟与准点各提醒一次；桌面端走 Electron 原生通知，浏览器端走 Web Notification，均静默降级。
+- **到点提醒**：带时间的未完成日程，在提前 N 分钟与准点各提醒一次；桌面端走 Tauri 原生通知，浏览器端走 Web Notification，均静默降级。
 - **导入 / 导出**：整份日历数据（任务 + 番茄记录 + 设置）以 JSON 结构导出，可再导入。
 
 ---
@@ -33,20 +32,19 @@
 ## 架构
 
 ```
-渲染进程 (React SPA, HashRouter)
-  │  window.electronAPI.{isElectron, notify}   ← 唯一原生桥
+WebView2 (React SPA, HashRouter)         ← 复用系统运行时，不打包 Chromium
+  │  window.__TAURI_INTERNALS__           ← Tauri JS 桥（探测 + invoke/事件）
+  │  动态 import @tauri-apps/plugin-notification
   ▼
-preload.cjs  (contextBridge 暴露，contextIsolation: true)
-  │  ipcRenderer.send('notify', {title, body})
-  ▼
-main.cjs  (Electron 主进程)
-  ├─ BrowserWindow：dev 加载 http://localhost:27890，prod 加载 dist-electron/renderer/index.html
-  ├─ Tray：关闭即最小化到托盘，番茄钟与提醒在后台继续运行
-  ├─ 单实例锁：二次启动聚焦已有窗口
-  └─ ipcMain 'notify' → 系统 Notification
+Rust core (src-tauri/src/lib.rs)
+  ├─ WebviewWindow：dev 加载 http://localhost:27890，prod 加载打包进二进制的 dist-tauri
+  ├─ tray-icon：托盘菜单（打开主窗口 / 退出）+ 左键单击唤起
+  ├─ 关闭即隐藏到托盘，番茄钟与提醒在后台继续运行
+  ├─ tauri-plugin-single-instance：二次启动聚焦已有窗口
+  └─ tauri-plugin-notification：系统原生通知
 ```
 
-主进程**只依赖 Electron 内置模块**（`electron` / `node:path`），不引入任何 npm 运行时依赖；渲染层由 Vite 打包，因此 `app.asar` 仅约 520 KB（已通过 `files` 白名单排除 147 MB 生产 `node_modules`）。
+Rust 侧只做「窗口 + 托盘 + 单实例 + 通知」，不含业务逻辑；前端由 Vite 打包后嵌入二进制，因此主程序 exe 仅约 3.6 MB。
 
 ### 前端数据流
 
@@ -87,10 +85,26 @@ src/
 ├── lib/                      # date / rhythm / notify / storage / import-export / utils
 ├── data/                     # types / constants / seo-plan（种子数据）
 public/data/seo-plan-2026-11.json   # SEO 排期原始 JSON
-electron/                     # main.cjs + preload.cjs（桌面壳）
+src-tauri/                    # Rust 桌面壳
+├── Cargo.toml / build.rs
+├── tauri.conf.json           # 窗口、NSIS、frontendDist=../dist-tauri
+├── capabilities/default.json # core:default + notification:default
+├── icons/                    # npx tauri icon 生成（ico/png/icns）
+└── src/{main.rs,lib.rs}      # 单实例 + 通知 + 托盘 + 关闭最小化
+tauri.vite.config.ts          # 渲染层构建（base:'./' → dist-tauri）
 ```
 
 `@/` 别名 → `src/`。shadcn/ui 内置组件位于 `src/components/ui/*`，版本锁定，勿改。
+
+---
+
+## 前置环境（一次性）
+
+- **Rust**（rustup，默认 `x86_64-pc-windows-msvc`）
+- **Microsoft C++ Build Tools**，勾选「使用 C++ 的桌面开发」（提供 MSVC 链接器 + Windows SDK）
+- **WebView2 运行时**：Win10/11 通常已内置
+
+> 本机 Rust 装在 `D:\rust`，`cargo` 位于 `D:\rust\.cargo\bin`。若在 Git Bash 中 `cargo: command not found`，把该目录加进 PATH：`export PATH="/d/rust/.cargo/bin:$PATH"`。
 
 ---
 
@@ -98,16 +112,10 @@ electron/                     # main.cjs + preload.cjs（桌面壳）
 
 ```bash
 npm install                 # registry 已指向 npmmirror（见 .npmrc）
-
-# 1) 启动渲染层 dev server（Electron 主进程默认连 27890 端口）
-npm run dev -- --port 27890
-
-# 2) 另开一个终端启动 Electron 壳
-npm run electron:dev
+npm run tauri:dev           # 起 vite(27890) + 编译 Rust + 打开原生窗口（热更新）
 ```
 
-纯浏览器调试（不含原生通知，通知会降级为 Web Notification）直接访问 dev server 即可。
-如 dev server 用了别的端口，可设 `ELECTRON_DEV_URL` 覆盖：`ELECTRON_DEV_URL=http://localhost:5173 npm run electron:dev`。
+只想在浏览器里调 UI（无原生通知，通知降级为 Web Notification）：`npm run dev`，然后访问 dev server。
 
 ---
 
@@ -124,102 +132,41 @@ npm run build       # 妙搭托管 Web 产物 → dist/client
 ### 桌面端打包（Windows）
 
 ```bash
-npm run electron:build
-# = vite build --config electron.vite.config.ts   （渲染层 → dist-electron/renderer，base:'./' 走 file://）
-# + electron-builder --win                        （NSIS 安装包 → release/）
+npm run tauri:build
+# = vite build --config tauri.vite.config.ts   （渲染层 → dist-tauri，base:'./'）
+# + cargo build --release + Tauri bundler       （NSIS 安装包）
 ```
 
-产物：
+产物：`src-tauri/target/release/bundle/nsis/桌面番茄日历_<version>_x64-setup.exe`（实测 1.35 MB）。
+免安装版可直接用 `src-tauri/target/release/pomodoro-calendar.exe`（约 3.6 MB，前端已嵌入）。
 
-- `release/pomodoro-calendar-setup-<version>.exe` — 安装版
-- `release/win-unpacked/` — 绿色免安装目录（打 zip 即得便携版）
+首次 release 全量编译约 10 分钟；之后增量编译快很多。
 
-#### electron-builder 关键配置（package.json `build`）
+### 更新图标
 
-| 配置 | 作用 |
-|------|------|
-| `files: [electron/**, dist-electron/renderer/**, !node_modules/**]` | 排除生产 `node_modules`，`app.asar` 147 MB → 520 KB |
-| `electronLanguages: ["zh-CN","en-US"]` | 只保留中英文 `.pak`，安装包 117 MB → 109 MB |
-| `extraResources: build/icon.png` | 打包后主进程从 `process.resourcesPath` 取图标 |
-| `asar: true` / `nsis.oneClick: false` | asar 归档；安装版允许改目录、建桌面快捷方式 |
+替换 `build/icon.png` 后运行 `npm run tauri:icon` 重新生成 `src-tauri/icons/` 全套。
 
-#### 国内网络加速（可选镜像）
+### 国内网络加速（可选）
 
-```bash
-export ELECTRON_MIRROR="https://npmmirror.com/mirrors/electron/"
-export ELECTRON_BUILDER_BINARIES_MIRROR="https://npmmirror.com/mirrors/electron-builder-binaries/"
-```
-
-#### 已知坑：杀毒软件锁定 `default_app.asar`
-
-Windows Defender 实时扫描会锁定 Electron 缓存里的 `default_app.asar`，导致 electron-builder 清理阶段报 `EBUSY/EPERM`。绕过办法：把 Electron 发行包解压到一个自定义目录并跳过 `default_app.asar`，再用 `--config.electronDist` 指向它（该路径走 `copyDir`，不触发删除）：
-
-```bash
-npx electron-builder --win --config.electronDist=.electron-dist
-```
+Rust 依赖走 rsproxy 镜像（在 `~/.cargo/config.toml` 配置 `rsproxy-sparse`）；npm 走 npmmirror（见 `.npmrc`）。
 
 ---
 
-## 打包体积优化评估（Electron vs Tauri）
+## 为什么用 Tauri（体积对比）
 
-当前 Electron 安装包 109 MB、便携版主程序约 238 MB，体积几乎全部来自 Chromium + Node 运行时。
-
-**Tauri 方案（已迁移并实测通过）**：复用系统 WebView2（Win10/11 多已内置），后端用 Rust。实测安装包 **1.35 MB**、主程序 exe 3.59 MB，相较 Electron 缩减约 **80×**：
-
-| 产物 | Electron | Tauri | 缩减 |
+| 产物 | Electron（旧） | Tauri（现） | 缩减 |
 |------|---------:|------:|-----:|
 | NSIS 安装包 | 109 MB | **1.35 MB** | ~80× |
 | 主程序 exe | 238 MB | 3.59 MB | ~66× |
 
-
-- 原生面很窄——主进程只有「窗口 + 托盘 + 单实例 + 通知」，全部有 Tauri 官方插件对应（`tauri-plugin-notification`、tray、`tauri-plugin-single-instance`）。
-- React 前端几乎零改动；`src/lib/notify.ts` 已做优雅降级，只需把 `window.electronAPI.notify` 桥换成 Tauri `invoke` / 通知插件。
-- WebView2 基于 Chromium，渲染表现与 Electron 一致。
-
-**代价与风险**：需引入 Rust 工具链与 Tauri CLI；老旧 Windows 可能需随包分发 WebView2 Evergreen 引导安装器；打包链从 electron-builder 切到 Tauri bundler（NSIS/MSI）。整体工作量约 1 天。
-
-**结论**：若以「小体积、可直接下载分发」为主要目标，值得迁移到 Tauri；现有 Electron 版可继续作为过渡产物。迁移可在 `src-tauri/` 下并行进行，不影响当前 React 代码。
-
-### Tauri 脚手架现状（`feat/tauri` 分支）
-
-已完成、且**不依赖 Rust 即验证通过**的部分：
-
-```
-src-tauri/
-├── Cargo.toml              # tauri 2 / plugin-notification / plugin-single-instance
-├── build.rs
-├── tauri.conf.json         # 窗口、NSIS(currentUser)、frontendDist=../dist-tauri
-├── capabilities/default.json   # core:default + notification:default
-├── icons/                  # npx tauri icon 从 build/icon.png 生成（ico/png/icns 全套）
-└── src/{main.rs,lib.rs}    # 单实例 + 通知 + 托盘菜单 + 关闭最小化到托盘
-tauri.vite.config.ts        # 渲染层构建（base:'./' → dist-tauri，tauri:// 协议加载）
-```
-
-前端桥接：`src/lib/notify.ts` 现按 Electron → Tauri → Web 三路降级；Tauri 分支通过 `window.__TAURI_INTERNALS__` 探测并**动态 import** `@tauri-apps/plugin-notification`，Web 构建不会加载它。
-
-- `npx tsc` 类型检查通过；`vite build --config tauri.vite.config.ts` 渲染层构建通过（约 388 KB JS / 123 KB gzip）。
-- React 业务代码零改动，Electron 版仍可正常构建，两套壳并存。
-
-### Tauri 构建步骤（已实测通过）
-
-前置（一次性）：**Rust（rustup，默认 `x86_64-pc-windows-msvc`）** + **Microsoft C++ Build Tools（勾选「使用 C++ 的桌面开发」）**。WebView2 运行时 Win10/11 通常已内置（本机 v156 已确认）。
-
-```bash
-npm install
-npm run tauri:dev      # 开发：起 vite(27890) + 编译 Rust + 打开原生窗口
-npm run tauri:build    # 打包：产物 src-tauri/target/release/bundle/nsis/*_x64-setup.exe
-```
-
-实测：release 全量编译约 10 分钟，产出 `桌面番茄日历_0.1.0_x64-setup.exe`（1.35 MB），启动运行正常，`cargo check` 与 `tauri:build` 均零错误。`src-tauri/Cargo.lock` 已纳入版本控制以保证可复现构建。
-
-
+关键在于 Tauri 复用系统 WebView2、不打包 Chromium + Node，且本应用原生面极窄（窗口/托盘/单实例/通知均有官方插件对应），React 业务代码零改动即可迁移。
 
 ---
 
 ## 发布流程（维护者）
 
-1. 改 `package.json` 的 `version`。
-2. `npm run electron:build` 生成安装包；将 `release/win-unpacked/` 打成 `pomodoro-calendar-portable-<version>.zip`。
-3. 建 git tag `v<version>`，在 GitHub Releases 上传 `.exe` 与便携 `.zip` 两个附件。
+1. 改版本号：`package.json` 与 `src-tauri/tauri.conf.json` 两处 `version` 保持一致。
+2. `npm run tauri:build` 生成 NSIS 安装包。
+3. 建 git tag `v<version>`，在 GitHub Releases 上传 `桌面番茄日历_<version>_x64-setup.exe`。
 
-> 单文件超 100 MB，Gitee Release 放不下，故用 GitHub Releases 分发；仓库已设为公开，附件可匿名直接下载。
+> 仓库公开，附件可匿名直接下载；安装包仅 1.35 MB，任何平台的 Release 限制都不再是问题。
