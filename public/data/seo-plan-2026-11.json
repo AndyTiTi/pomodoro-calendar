@@ -1,0 +1,365 @@
+{
+  "version": 1,
+  "tasks": [
+    {
+      "id": "seo-001",
+      "title": "内链与站内 SEO 网络整改（9 篇）",
+      "date": "2026-11-02",
+      "time": "09:00",
+      "platform": "official",
+      "type": "other",
+      "done": true,
+      "note": "已完成：9 篇共 24 条 related、17 条正文内链，零孤岛；npm run verify 通过（106 项断言）。详见 code-blog/SEO内链与搜索网络规划.md"
+    },
+    {
+      "id": "seo-002",
+      "title": "发布 /blog 到香港主机",
+      "date": "2026-11-02",
+      "time": "10:00",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "code-blog 根目录执行 npm run verify，再把 dist/ 同步到 /var/www/knowledge-blog/；确认 https://yunzhanlab.com/blog/ 可访问且 Nginx 指向正确"
+    },
+    {
+      "id": "seo-003",
+      "title": "Google Search Console 验证并提交博客 sitemap",
+      "date": "2026-11-03",
+      "time": "10:00",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "GSC 添加资源 yunzhanlab.com；提交 https://yunzhanlab.com/blog/sitemap.xml；主站 sitemap 已引用博客地址则无需重复提交"
+    },
+    {
+      "id": "seo-004",
+      "title": "Bing Webmaster 验证并导入 GSC 数据",
+      "date": "2026-11-04",
+      "time": "10:00",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "Bing Webmaster Tools 验证域名，导入 GSC；海外未备案站点在 Bing 的收录通常快于百度"
+    },
+    {
+      "id": "seo-005",
+      "title": "主站导航/页脚增加「技术笔记」入口",
+      "date": "2026-11-05",
+      "time": "10:00",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "改 code-courses/site/assets/js/common.js：导航加 <a href=\"blog/\">技术笔记</a>，页脚同步；用相对路径 blog/，勿写死域名"
+    },
+    {
+      "id": "seo-006",
+      "title": "课程页增加「延伸阅读」指向 3 篇文章",
+      "date": "2026-11-06",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "course.html?id=nestjs-studyroom 增加延伸阅读：/blog/nest/di-and-modules、/blog/typescript/dto-type-sharing、/blog/sqlite/parameterized-query；锚文本用文章标题"
+    },
+    {
+      "id": "seo-007",
+      "title": "3 篇 P0 文章补「常见问题」H2（长尾问答）",
+      "date": "2026-11-07",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "每篇 3–5 个长尾问句，答案 2–3 句；问题直接取规划文档里的长尾词表，避免自造搜索量低的词"
+    },
+    {
+      "id": "seo-008",
+      "title": "第 1 周复盘：收录、曝光、内链点击",
+      "date": "2026-11-08",
+      "time": "20:00",
+      "platform": "other",
+      "type": "review",
+      "done": false,
+      "note": "看 GSC 收录数与博客页曝光；记录异常，下周一优先处理"
+    },
+    {
+      "id": "seo-009",
+      "title": "写新文 nextjs/caching-revalidate（P0）",
+      "date": "2026-11-09",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "《Next.js 缓存与 revalidate 实战》；frontmatter 必填 slug/title/description/stack/type/level/tags/updated；related 指向 nextjs/ssr-ssg-isr、nextjs/metadata-seo、seo/why-ssr-seo"
+    },
+    {
+      "id": "seo-010",
+      "title": "发布 nextjs/caching-revalidate 并双向回填内链",
+      "date": "2026-11-10",
+      "time": "09:30",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "npm run verify 后部署；在 nextjs/ssr-ssg-isr 与 nextjs/metadata-seo 正文各加 1 条链接指向新文"
+    },
+    {
+      "id": "seo-011",
+      "title": "掘金分发：Next.js 缓存长文",
+      "date": "2026-11-10",
+      "time": "11:00",
+      "platform": "juejin",
+      "type": "publish",
+      "done": false,
+      "note": "发改写版，文末注明「本文首发于 yunzhanlab.com/blog/nextjs/caching-revalidate」；不要全文复制，避免原创判定受损"
+    },
+    {
+      "id": "seo-012",
+      "title": "写新文 koa/error-middleware（P0）",
+      "date": "2026-11-11",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "《Koa 错误处理中间件：统一异常与日志》；related 指向 koa/onion-model、koa/router-cors-health、nest/di-and-modules"
+    },
+    {
+      "id": "seo-013",
+      "title": "发布 koa/error-middleware 并回填内链",
+      "date": "2026-11-12",
+      "time": "09:30",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "在 koa/onion-model、koa/router-cors-health 正文各加 1 条链接指向新文；跑 npm run verify"
+    },
+    {
+      "id": "seo-014",
+      "title": "CSDN 分发：Koa 统一错误处理",
+      "date": "2026-11-12",
+      "time": "14:00",
+      "platform": "csdn",
+      "type": "publish",
+      "done": false,
+      "note": "再改写版；标题带长尾词「Koa 统一错误处理」，文末导流官网原文"
+    },
+    {
+      "id": "seo-015",
+      "title": "课程页延伸阅读第二批（Koa / TypeScript）",
+      "date": "2026-11-13",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "Koa 章节 → koa/onion-model、koa/error-middleware；TypeScript 章节 → typescript/dto-type-sharing"
+    },
+    {
+      "id": "seo-016",
+      "title": "处理 GSC「已发现尚未编入索引」",
+      "date": "2026-11-14",
+      "time": "09:30",
+      "platform": "official",
+      "type": "other",
+      "done": false,
+      "note": "逐页检查是否孤岛、inbound 是否 ≥2、sitemap lastmod 是否随 updated 更新；必要时手动请求编入索引"
+    },
+    {
+      "id": "seo-017",
+      "title": "第 2 周复盘：新文收录率与长尾排名",
+      "date": "2026-11-15",
+      "time": "20:00",
+      "platform": "other",
+      "type": "review",
+      "done": false,
+      "note": "看 2 篇新文首周收录、CTR、长尾词排名；连续两周零曝光的选题方向要淘汰"
+    },
+    {
+      "id": "seo-018",
+      "title": "写新文 nest/guards-interceptors（P1）",
+      "date": "2026-11-16",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "《NestJS 守卫与拦截器：鉴权与响应包装》；related 指向 nest/di-and-modules、typescript/dto-type-sharing、koa/onion-model"
+    },
+    {
+      "id": "seo-019",
+      "title": "发布 nest/guards-interceptors 并回填内链",
+      "date": "2026-11-17",
+      "time": "09:30",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "在 nest/di-and-modules 正文加 1 条链接指向新文；跑 npm run verify"
+    },
+    {
+      "id": "seo-020",
+      "title": "知乎：回答 2 个 NestJS 鉴权/拦截器问题",
+      "date": "2026-11-17",
+      "time": "20:00",
+      "platform": "zhihu",
+      "type": "publish",
+      "done": false,
+      "note": "正文给完整答案，不要只放链接；文末附官网原文地址，选有稳定搜索量的问题"
+    },
+    {
+      "id": "seo-021",
+      "title": "写新文 sqlite/transactions（P1）",
+      "date": "2026-11-18",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "《SQLite 事务与并发：BEGIN、WAL 与锁》；related 指向 sqlite/parameterized-query、koa/error-middleware、nest/di-and-modules"
+    },
+    {
+      "id": "seo-022",
+      "title": "发布 sqlite/transactions 并回填内链",
+      "date": "2026-11-19",
+      "time": "09:30",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "在 sqlite/parameterized-query 正文加 1 条链接指向新文；检查代码块高亮与复制按钮"
+    },
+    {
+      "id": "seo-023",
+      "title": "公众号：SQLite 事务与并发",
+      "date": "2026-11-19",
+      "time": "14:00",
+      "platform": "wechat",
+      "type": "publish",
+      "done": false,
+      "note": "精排版，阅读原文指向官网原文；标题用问题式长尾词（如「SQLite 并发写入会锁表吗」）"
+    },
+    {
+      "id": "seo-024",
+      "title": "全站内链审计：新文 inbound ≥ 2",
+      "date": "2026-11-20",
+      "time": "09:30",
+      "platform": "official",
+      "type": "other",
+      "done": false,
+      "note": "每篇新文至少 2 条 inbound、正文至少 2 条 outbound；跑 npm run verify 确认无断链与孤岛"
+    },
+    {
+      "id": "seo-025",
+      "title": "优化高曝光低 CTR 页面的 title/description",
+      "date": "2026-11-21",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "从 GSC 挑曝光高但 CTR<1% 的页面，只改 title/description，slug 与 canonical 保持不变"
+    },
+    {
+      "id": "seo-026",
+      "title": "第 3 周复盘：收录率与导流 UV",
+      "date": "2026-11-22",
+      "time": "20:00",
+      "platform": "other",
+      "type": "review",
+      "done": false,
+      "note": "看新文首周收录率、知乎/公众号导流 UV；记录哪类长尾词开始有排名"
+    },
+    {
+      "id": "seo-027",
+      "title": "写新文 seo/technical-audit（P1）",
+      "date": "2026-11-23",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "《技术博客 SEO 自检清单：canonical、sitemap、内链、结构化数据》；related 指向 seo/why-ssr-seo、nextjs/metadata-seo、nextjs/ssr-ssg-isr"
+    },
+    {
+      "id": "seo-028",
+      "title": "发布 seo/technical-audit",
+      "date": "2026-11-24",
+      "time": "09:30",
+      "platform": "official",
+      "type": "publish",
+      "done": false,
+      "note": "文中可引用 check.mjs / smoke.mjs 的检查思路；发布后回填 3 篇 related 的双向链接"
+    },
+    {
+      "id": "seo-029",
+      "title": "掘金分发：技术博客 SEO 自检清单",
+      "date": "2026-11-24",
+      "time": "11:00",
+      "platform": "juejin",
+      "type": "publish",
+      "done": false,
+      "note": "标题强调「12 项检查」这类具体数字；文末导流官网"
+    },
+    {
+      "id": "seo-030",
+      "title": "抽查 5 页：canonical / sitemap / JSON-LD",
+      "date": "2026-11-25",
+      "time": "09:30",
+      "platform": "official",
+      "type": "other",
+      "done": false,
+      "note": "确认 canonical 唯一、sitemap lastmod 与 updated 一致、无 404 内链、JSON-LD 能被 Google 富媒体搜索结果测试解析"
+    },
+    {
+      "id": "seo-031",
+      "title": "主站首页增加「最新技术笔记」区块",
+      "date": "2026-11-26",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "放 3 条最新文章链接指向 /blog/<slug>；优先选当月新文，标题用文章标题做锚文本"
+    },
+    {
+      "id": "seo-032",
+      "title": "外链建设：GitHub / 课程主页 / 技术群各 1 条",
+      "date": "2026-11-27",
+      "time": "09:30",
+      "platform": "official",
+      "type": "other",
+      "done": false,
+      "note": "只放真实相关入口；不买链接、不群发、不用自动外链工具"
+    },
+    {
+      "id": "seo-033",
+      "title": "整理 12 月选题（Docker / Nginx / Git）",
+      "date": "2026-11-28",
+      "time": "09:30",
+      "platform": "official",
+      "type": "writing",
+      "done": false,
+      "note": "三篇各写大纲 + 5 个长尾问句；按「问题→方案→排错」结构，避免写成命令手册"
+    },
+    {
+      "id": "seo-034",
+      "title": "月度复盘：收录 / 点击 / 长尾词 / 转化",
+      "date": "2026-11-29",
+      "time": "20:00",
+      "platform": "other",
+      "type": "review",
+      "done": false,
+      "note": "统计收录页数、点击、Top10 长尾词、官网→课程转化；决定 12 月保留或砍掉的选题"
+    },
+    {
+      "id": "seo-035",
+      "title": "每月 1 日固定 SEO 体检",
+      "date": "2026-12-01",
+      "time": "09:30",
+      "platform": "other",
+      "type": "review",
+      "done": false,
+      "note": "检查 sitemap、404、canonical、GSC 覆盖率；在 app 里设为每月重复，形成固定节奏"
+    }
+  ],
+  "pomodoro": {},
+  "settings": {
+    "focusMin": 25,
+    "shortBreakMin": 5,
+    "longBreakMin": 15,
+    "longBreakInterval": 4,
+    "autoStart": false,
+    "notifyEnabled": true,
+    "remindBeforeMin": 30
+  }
+}
