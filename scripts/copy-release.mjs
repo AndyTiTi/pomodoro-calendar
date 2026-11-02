@@ -21,7 +21,8 @@ rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
 for (const name of installers) {
   const from = path.join(nsisDir, name);
-  const to = path.join(outDir, name);
+  // 重命名为 ASCII，避免中文文件名在 Release 下载 URL 中被百分号编码、下载工具处理出错
+  const to = path.join(outDir, `pomodoro-calendar-${version}-x64-setup.exe`);
   copyFileSync(from, to);
-  console.log(`[copy-release] ${name} -> release/${name}`);
+  console.log(`[copy-release] ${name} -> release/pomodoro-calendar-${version}-x64-setup.exe`);
 }
