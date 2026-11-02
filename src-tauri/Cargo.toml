@@ -1,6 +1,6 @@
 [package]
 name = "pomodoro-calendar"
-version = "0.1.0"
+version = "0.2.0"
 description = "桌面番茄日历 —— 番茄钟 + 内容发布节奏排期"
 authors = ["yunzhanlab"]
 edition = "2021"

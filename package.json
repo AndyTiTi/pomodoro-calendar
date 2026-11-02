@@ -1,6 +1,6 @@
 {
   "name": "miaoda-react-standard-webapp-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
     "lint:eslint": "eslint src",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build",
+    "tauri:build": "tauri build && node scripts/copy-release.mjs",
     "tauri:icon": "tauri icon build/icon.png"
   },
   "dependencies": {

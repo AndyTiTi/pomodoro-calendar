@@ -12,6 +12,10 @@ src-tauri/target/
 src-tauri/gen/schemas/
 dist-tauri/
 
+# Convenience copy of the Tauri installer (scripts/copy-release.mjs); distributed
+# via GitHub Releases, not committed.
+release/
+
 # Build assets: ignore everything except the app icon needed for packaging
 build/*
 !build/icon.png
