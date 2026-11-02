@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCalendar } from '@/store/calendar-context';
 import type { TimerMode } from '@/data/types';
 import { todayKey } from '@/lib/date';
@@ -30,32 +30,38 @@ export const usePomodoro = () => {
     [settings],
   );
 
-  // 每秒递减
+  // interval 回调里读取最新状态，避免闭包过期
+  const liveRef = useRef({ secondsLeft, mode, completedFocus, settings, addPomodoro, goMode });
+  useEffect(() => {
+    liveRef.current = { secondsLeft, mode, completedFocus, settings, addPomodoro, goMode };
+  });
+
   useEffect(() => {
     if (!running) return;
     const id = window.setInterval(() => {
-      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
+      const live = liveRef.current;
+      if (live.secondsLeft > 1) {
+        setSecondsLeft(live.secondsLeft - 1);
+        return;
+      }
+      // 到 0：结算并切换模式
+      setSecondsLeft(0);
+      let nextMode: TimerMode;
+      if (live.mode === 'focus') {
+        const count = live.completedFocus + 1;
+        setCompletedFocus(count);
+        live.addPomodoro(todayKey());
+        const isLong = count % live.settings.longBreakInterval === 0;
+        nextMode = isLong ? 'long' : 'short';
+        sendNotification('专注完成', isLong ? '进入长休息，放松一下' : '进入短休息');
+      } else {
+        nextMode = 'focus';
+        sendNotification('休息结束', '开始下一个专注');
+      }
+      live.goMode(nextMode, live.settings.autoStart);
     }, 1000);
     return () => window.clearInterval(id);
   }, [running]);
-
-  // 到 0 后结算并切换模式
-  useEffect(() => {
-    if (!running || secondsLeft !== 0) return;
-    let nextMode: TimerMode;
-    if (mode === 'focus') {
-      const count = completedFocus + 1;
-      setCompletedFocus(count);
-      addPomodoro(todayKey());
-      const isLong = count % settings.longBreakInterval === 0;
-      nextMode = isLong ? 'long' : 'short';
-      sendNotification('专注完成', isLong ? '进入长休息，放松一下' : '进入短休息');
-    } else {
-      nextMode = 'focus';
-      sendNotification('休息结束', '开始下一个专注');
-    }
-    goMode(nextMode, settings.autoStart);
-  }, [secondsLeft, running, mode, completedFocus, settings, addPomodoro, goMode]);
 
   const start = useCallback(() => setRunning(true), []);
   const pause = useCallback(() => setRunning(false), []);

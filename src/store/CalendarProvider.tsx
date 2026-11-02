@@ -4,19 +4,19 @@ import { CalendarContext } from './calendar-context';
 import type { CalendarContextValue } from './calendar-context';
 import type { ITask, ISettings, ICalendarData } from '@/data/types';
 import { STORAGE_KEYS, DEFAULT_SETTINGS } from '@/data/constants';
-import { SAMPLE_TASKS } from '@/data/sample';
+import { SEO_PLAN } from '@/data/seo-plan';
 import { storage } from '@/lib/storage';
 import { buildExportData } from '@/lib/import-export';
 
 export default function CalendarProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<ITask[]>(() =>
-    storage.get<ITask[]>(STORAGE_KEYS.tasks, SAMPLE_TASKS),
+    storage.get<ITask[]>(STORAGE_KEYS.tasks, SEO_PLAN.tasks),
   );
   const [pomodoro, setPomodoro] = useState<Record<string, number>>(() =>
-    storage.get<Record<string, number>>(STORAGE_KEYS.pomodoro, {}),
+    storage.get<Record<string, number>>(STORAGE_KEYS.pomodoro, SEO_PLAN.pomodoro),
   );
   const [settings, setSettings] = useState<ISettings>(() =>
-    storage.get<ISettings>(STORAGE_KEYS.settings, DEFAULT_SETTINGS),
+    storage.get<ISettings>(STORAGE_KEYS.settings, { ...DEFAULT_SETTINGS, ...SEO_PLAN.settings }),
   );
 
   useEffect(() => storage.set(STORAGE_KEYS.tasks, tasks), [tasks]);

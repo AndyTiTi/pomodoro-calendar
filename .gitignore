@@ -2,14 +2,33 @@
 node_modules/
 */node_modules/
 
-# Production builds
+# Web production builds (Vite / 妙搭托管产物)
 dist/
 */dist/
-build/
-*/build/
+
+# Electron intermediate renderer build (portable copy lives in desktop/)
+dist-electron/
+
+# Electron build outputs (large binaries, regenerated; shipped as Release attachments)
+release/
+release-*/
+.electron-dist/
+
+# Build assets: ignore everything except the app icon needed for packaging
+build/*
+!build/icon.png
+
+# Generated icon source scratch
+vibe_images/
+
+# Desktop portable (green) version — kept on disk locally but NOT committed:
+# the 239MB exe exceeds Gitee's 50MB repo single-file limit. It is distributed
+# as a Release attachment instead (source in git, binaries in Releases).
+desktop/
 
 # Environment files
 .env.local
+.env.*.local
 
 # Logs
 npm-debug.log*
@@ -17,6 +36,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 /logs/
+*.log
 
 # Runtime data
 pids
@@ -24,7 +44,7 @@ pids
 *.seed
 *.pid.lock
 
-# Coverage directory used by tools like istanbul
+# Coverage
 coverage/
 *.lcov
 
