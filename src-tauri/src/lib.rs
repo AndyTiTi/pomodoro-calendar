@@ -1,6 +1,6 @@
 use tauri::{
     menu::{Menu, MenuItem},
-    tray::{TrayIconBuilder, TrayIconEvent},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Manager,
 };
 
@@ -20,13 +20,14 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
-            let show = MenuItem::with_id(app, "show", "打开主窗口", true, None::<&str>)?;
+            let show = MenuItem::with_id(app, "show", "打开主界面", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show, &quit])?;
 
             let mut tray = TrayIconBuilder::with_id("main-tray")
                 .tooltip("桌面番茄日历")
                 .menu(&menu)
+                // 左键不弹菜单（改为唤起窗口）；右键由系统自动弹出上下文菜单
                 .show_menu_on_left_click(false)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => show_main_window(app),
@@ -34,7 +35,13 @@ pub fn run() {
                     _ => {}
                 })
                 .on_tray_icon_event(|tray, event| {
-                    if let TrayIconEvent::Click { .. } = event {
+                    // 仅左键抬起唤起窗口；不要拦截右键，否则焦点被抢走、上下文菜单弹不出来
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
                         show_main_window(tray.app_handle());
                     }
                 });
